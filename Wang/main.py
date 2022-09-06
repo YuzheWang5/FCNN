@@ -55,8 +55,3 @@ def train():
     model.train()
     train_losses.append(running_loss / len(trainloader))
     test_losses.append(test_loss / len(testloader)
-
-    print("Learning times in training set: {}/{}.. ".format(epochs + 1, epochs),
-          "loss of training: {:.3f}.. ".format(running_loss / len(trainloader)),
-          "loss of testing: {:.3f}.. ".format(test_loss / len(testloader)),
-          "accuracy: {:.3f}".format(accuracy / len(testloader)))
