@@ -9,7 +9,7 @@ class Scheduler(nn.Module):
         self.fc1 = nn.Linear(12, 256)
         self.fc2 = nn.Linear(256, 1024)
         self.fc3 = nn.Linear(1024, 4096)
-        # use dropout to avoid overfitting and p = 0.1
+        # use dropout and p = 0.1
         self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
@@ -31,10 +31,13 @@ def train():
     print('Start')
     for epochs in range(epochs):
         running_loss = 0
-        for data, ORF in trainloader:
+        for data, ORFdata in trainloader:
             optimizer.zero_grad()
-            log_ps = model(data)
-            loss = loss(log_ps, ORF)
+            # forward
+            output = model(data)
+            # compute loss
+            loss = nn.CrossEntropyLoss(output, ORFdata)
+            # backward
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
@@ -45,13 +48,15 @@ def train():
         with torch.no_grad():
             # close dropout when testing
             model.eval()
-            for data, ORF in testloader:
-                data, target = data.to(device), ORF.to(device)
-                test_loss += nn.CrossEntropyLoss(data, ORF, reduction='sum').item()  # sum up batch loss
-                pred = ORF
-                accuracy += pred.eq(target.view_as(pred)).sum().item()
+            for data, ORFdata in testloader:
+                data, target = data.to(device), ORFdata.to(device)
+                # forecast
+                log_ps = model(data)
+                test_loss += nn.CrossEntropyLoss(log_ps, ORFdata, reduction='sum').item()
+                prediction = ORFdata
+                accuracy += prediction.eq(target.view_as(prediction)).sum().item()
+            # open dropout
             model.train()
-            # storing the loss of training/testing in lists and plot
 
     print("times of learning: {}/{}.. ".format(epochs + 1, epochs),
           "loss of training: {:.3f}.. ".format(running_loss / len(trainloader)),
