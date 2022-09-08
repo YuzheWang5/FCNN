@@ -1,6 +1,10 @@
 import torch
 from torch import nn, optim, device
 import torch.nn.functional as F
+import pandas as pd
+
+
+pd = pd.read_csv('dataset.csv')
 
 
 class Scheduler(nn.Module):
@@ -19,11 +23,9 @@ class Scheduler(nn.Module):
 
         return x
 
+
 def train():
-    global running_loss
     model = Scheduler()
-    # use cross entropy loss function
-    loss = nn.CrossEntropyLoss()
     # use Adam optimizer and learning rate is 0.002
     optimizer = optim.Adam(model.parameters(), lr=0.002)
     epochs = 12
@@ -31,7 +33,7 @@ def train():
     print('Start')
     for epochs in range(epochs):
         running_loss = 0
-        for data, ORFdata in trainloader:
+        for data, ORFdata in pd:
             optimizer.zero_grad()
             # forward
             output = model(data)
@@ -48,7 +50,7 @@ def train():
         with torch.no_grad():
             # close dropout when testing
             model.eval()
-            for data, ORFdata in testloader:
+            for data, ORFdata in pd:
                 data, target = data.to(device), ORFdata.to(device)
                 # forecast
                 log_ps = model(data)
@@ -59,6 +61,7 @@ def train():
             model.train()
 
     print("times of learning: {}/{}.. ".format(epochs + 1, epochs),
-          "loss of training: {:.3f}.. ".format(running_loss / len(trainloader)),
-          "loss of testing: {:.3f}.. ".format(test_loss / len(testloader)),
-          "accuracy: {:.3f}".format(accuracy / len(testloader)))
+          "loss of training: {:.3f}.. ".format(running_loss / len(pd)),
+          "loss of testing: {:.3f}.. ".format(test_loss / len(pd)),
+          "accuracy: {:.3f}".format(accuracy / len(pd)))
+
