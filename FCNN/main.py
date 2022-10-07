@@ -48,9 +48,9 @@ class NET(nn.Module):
 
 
 model = NET()
-epochs = 100
+epochs = 50
 criterion = nn.CrossEntropyLoss()
-optimizier = torch.optim.Adam(model.parameters(), lr=0.0003)
+optimizier = torch.optim.Adam(model.parameters(), lr=0.01)
 
 
 def train():
@@ -68,6 +68,8 @@ def train():
                     64 * i, j + 1, epochs, loss.item(), ))
 
             torch.save(model.state_dict(), r"C:\Users\woshi\FCNN\NN.pth")
+            np.savetxt('MyResult.csv', output.detach().numpy(), fmt='%.2f', delimiter=',')
+
 
 
 # def test():
